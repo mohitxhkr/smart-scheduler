@@ -1,0 +1,24 @@
+# Python cache files
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+env/
+
+# Environment variables
+.env
+
+# OAuth credentials (Google Calendar)
+token.json
+credentials.json
+
+# Streamlit cache
+.streamlit/
+
+# VSCode settings (if applicable)
+.vscode/
+
+# OS-specific
+.DS_Store
+Thumbs.db
