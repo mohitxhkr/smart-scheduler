@@ -115,7 +115,6 @@ def main():
                     link = create_meeting(calendar_service, scheduled_time.isoformat(), duration, summary=meeting_title)
                     speak("Your meeting has been scheduled. Here is the link.")
                     print("\U0001F4C5 Meeting link:", link)
-                    speak(link)
                     conversation_context = ""
                     break
                 except Exception as e:
@@ -124,8 +123,6 @@ def main():
             else:
                 speak("Okay, I won’t schedule it yet.")
                 conversation_context = ""
-        else:
-            speak("Sorry, I couldn't understand the date and time. Please say it again like '17th June, 2025 at 4 PM' or 'tomorrow at 3 PM'.")
 
         if "book" in user_input.lower() or "schedule" in user_input.lower():
             slots = get_free_slots(calendar_service, 60)
@@ -139,7 +136,6 @@ def main():
                     link = create_meeting(calendar_service, first_slot, 60)
                     speak("Meeting booked successfully.")
                     print("\U0001F4C5 Meeting link:", link)
-                    speak(link)
                     conversation_context = ""
                     break
             else:
