@@ -1,10 +1,10 @@
 import os
-from datetime import datetime, timedelta
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
 import pytz
 from dateutil.parser import isoparse
+from datetime import datetime, timedelta
+from googleapiclient.discovery import build
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 IST = pytz.timezone("Asia/Kolkata")
@@ -20,7 +20,7 @@ def authenticate_google_calendar():
             token.write(creds.to_json())
     return build('calendar', 'v3', credentials=creds)
 
-def get_free_slots(service, duration_minutes, days=7):
+def get_free_slots(service, duration_minutes, days=7, buffer_minutes=15):
     now = datetime.now(IST)
     end = now + timedelta(days=days)
 
@@ -34,18 +34,19 @@ def get_free_slots(service, duration_minutes, days=7):
 
     events = events_result.get('items', [])
 
-    busy_times = [(datetime.fromisoformat(e['start']['dateTime']),
-                   datetime.fromisoformat(e['end']['dateTime']))
-                  for e in events if 'dateTime' in e['start']]
+    busy_times = [
+        (isoparse(e['start']['dateTime']), isoparse(e['end']['dateTime']))
+        for e in events if 'dateTime' in e['start']
+    ]
 
     free_slots = []
-    current = now + timedelta(hours=1)
+    current = now + timedelta(minutes=buffer_minutes)
     while current + timedelta(minutes=duration_minutes) <= end:
-        overlap = False
-        for start, end_time in busy_times:
-            if start <= current < end_time or start < current + timedelta(minutes=duration_minutes) <= end_time:
-                overlap = True
-                break
+        overlap = any(
+            start <= current < end_time or
+            start < current + timedelta(minutes=duration_minutes) <= end_time
+            for start, end_time in busy_times
+        )
         if not overlap:
             free_slots.append(current.astimezone(IST).isoformat())
         current += timedelta(minutes=30)
@@ -62,7 +63,7 @@ def create_meeting(service, start_time_str, duration_minutes, summary="Smart Sch
 
         end_time = start_time + timedelta(minutes=duration_minutes)
 
-        print("Scheduling at IST:", start_time.strftime("%d-%b-%Y %I:%M %p %Z"))
+        print("📅 Scheduling at IST:", start_time.strftime("%d-%b-%Y %I:%M %p %Z"))
 
         event = {
             'summary': summary,
@@ -81,9 +82,9 @@ def create_meeting(service, start_time_str, duration_minutes, summary="Smart Sch
         }
 
         created_event = service.events().insert(calendarId='primary', body=event).execute()
-        print("\u2705 Event created:", created_event.get('htmlLink'))
+        print("✅ Event created:", created_event.get('htmlLink'))
         return created_event.get('htmlLink')
 
     except Exception as e:
-        print("\u274C Error creating event:", e)
+        print("❌ Error creating event:", e)
         return None
