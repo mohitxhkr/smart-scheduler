@@ -88,3 +88,13 @@ def create_meeting(service, start_time_str, duration_minutes, summary="Smart Sch
     except Exception as e:
         print("❌ Error creating event:", e)
         return None
+    
+def list_events(service, max_results=5):
+    events_result = service.events().list(
+        calendarId='primary',
+        maxResults=max_results,
+        singleEvents=True,
+        orderBy='startTime'
+    ).execute()
+
+    return events_result.get('items', [])

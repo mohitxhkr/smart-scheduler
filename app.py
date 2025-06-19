@@ -1,119 +1,143 @@
 import streamlit as st
-from llm_engine import generate_response
 from voice_input import listen
 from voice_output import speak
-from calendar_api import authenticate_google_calendar, create_meeting
-from datetime import datetime
-import pytz
-import dateparser
+from llm_engine import generate_response
+from calendar_api import authenticate_google_calendar, list_events, create_meeting
+from main import parse_datetime_from_text
 import re
+import pytz
+from datetime import datetime
 
 IST = pytz.timezone("Asia/Kolkata")
 
-def parse_datetime_from_text(text):
-    if not text:
-        return None
+st.set_page_config(page_title="🧠 Smart Scheduler", layout="centered")
+st.title("🧠 Voice-Controlled Smart Scheduler")
 
-    # Match explicit format like: "17th June, 2025 at 4:00 PM"
-    pattern = r"(\d{1,2}(?:st|nd|rd|th)?\s+\w+,\s*\d{4})\s*(?:at)?\s*(\d{1,2}:\d{2}\s*(?:AM|PM|am|pm))"
-    match = re.search(pattern, text)
-    if match:
-        full = f"{match.group(1)} {match.group(2)}"
-        parsed = dateparser.parse(full, settings={
-            'TIMEZONE': 'Asia/Kolkata',
-            'RETURN_AS_TIMEZONE_AWARE': True
-        })
-        if parsed and parsed > datetime.now(IST):
-            return parsed
+# Initialize session state variables
+if "calendar_service" not in st.session_state:
+    st.session_state.calendar_service = authenticate_google_calendar()
 
-    # Fallback for natural phrases: "tomorrow at 4 PM", "next Friday"
-    parsed = dateparser.parse(text, settings={
-        'TIMEZONE': 'Asia/Kolkata',
-        'RETURN_AS_TIMEZONE_AWARE': True,
-        'PREFER_DATES_FROM': 'future'
-    })
-    if parsed and parsed > datetime.now(IST):
-        return parsed
-
-    return None
-
-st.set_page_config(page_title="Smart Scheduler AI", layout="wide")
-st.title("🧠 Smart Scheduler AI")
-st.caption("Talk or type to schedule meetings effortlessly with your calendar")
+if "conversation_context" not in st.session_state:
+    st.session_state.conversation_context = ""
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-calendar_service = authenticate_google_calendar()
-input_method = st.radio("Input method:", ["🎙️ Voice", "⌨️ Text"])
+# Input method toggle
+input_method = st.radio("Choose Input Method:", ["🎙️ Voice", "⌨️ Text"])
 
-user_input = ""
+start_triggered = st.button("🚀 Start Assistant")
 
-# Voice input section
-if input_method == "🎙️ Voice":
-    if st.button("🎤 Click Here To Speak"):
-        with st.spinner("Listening..."):
-            try:
+if start_triggered:
+    speak("Hi! I’m your Smart Scheduler assistant. How can I help you today?")
+    st.markdown("**Assistant:** Hi! I’m your Smart Scheduler assistant. How can I help you today?")
+
+    while True:
+        if input_method == "🎙️ Voice":
+            with st.spinner("🎙 Listening..."):
                 user_input = listen()
-                st.success(f"You said: {user_input}")
-            except Exception as e:
-                st.error("Microphone error or speech not recognized.")
+        else:
+            user_input = st.text_input("Type your command:", key="text_input")
+            if user_input == "":
+                st.stop()
 
-# Text input section
-elif input_method == "⌨️ Text":
-    user_input = st.text_input("💬 Type your request here")
+        st.markdown(f"**You:** {user_input}")
+        st.session_state.chat_history.append(("User", user_input))
 
-# Parse datetime from LLM/user message
-def parse_datetime_from_text(text):
-    if not text:
-        return None
+        if any(word in user_input.lower() for word in ["stop", "exit"]):
+            speak("Okay, ending the session. Goodbye!")
+            st.markdown("**Assistant:** Okay, ending the session. Goodbye!")
+            break
 
-    # Match: "17th June, 2025 at 10:30 PM"
-    regex = r"(\d{1,2}(?:st|nd|rd|th)?\s+\w+,\s*\d{4}).*?(\d{1,2}:\d{2}\s*(AM|PM|am|pm))"
-    match = re.search(regex, text)
-    if match:
-        combined = f"{match.group(1)} {match.group(2)}"
-        dt = dateparser.parse(combined, settings={'TIMEZONE': 'Asia/Kolkata', 'RETURN_AS_TIMEZONE_AWARE': True})
-        return dt
+        if "show" in user_input.lower() and "schedule" in user_input.lower():
+            speak("Here are your upcoming meetings.")
+            events = list_events(st.session_state.calendar_service)
 
-    # Fallback: "tomorrow at 4 PM"
-    dt = dateparser.parse(text, settings={
-        'TIMEZONE': 'Asia/Kolkata',
-        'RETURN_AS_TIMEZONE_AWARE': True,
-        'PREFER_DATES_FROM': 'future'
-    })
-    return dt
+            if not events:
+                st.markdown("No upcoming events found.")
+                speak("You have no upcoming meetings.")
+                continue
 
+            for event in events:
+                start = event['start'].get('dateTime', event['start'].get('date'))
+                summary = event.get('summary', 'No title')
+                time_obj = datetime.fromisoformat(start).astimezone(IST)
+                formatted_time = time_obj.strftime("%d %B, %Y at %I:%M %p")
+                st.markdown(f"**{summary}** on {formatted_time}")
+                speak(f"{summary} on {formatted_time}")
+            continue
 
-# Run LLM and calendar scheduling
-if user_input:
-    st.session_state.chat_history.append(("You", user_input))
-    with st.spinner("Thinking..."):
-        try:
-            bot_reply = generate_response(user_input)
-        except Exception:
-            bot_reply = "Sorry, there was an error with the language model."
-    st.session_state.chat_history.append(("Assistant", bot_reply))
-    speak(bot_reply)
+        st.session_state.conversation_context += f"\nUser: {user_input}"
+        bot_reply = generate_response(user_input)
+        speak(bot_reply)
+        st.markdown(f"**Assistant:** {bot_reply}")
+        st.session_state.chat_history.append(("Assistant", bot_reply))
+        st.session_state.conversation_context += f"\nAssistant: {bot_reply}"
 
-    st.markdown("### 💡 Assistant Suggestion")
-    st.markdown(f"**🤖:** {bot_reply}")
+        scheduled_time = parse_datetime_from_text(user_input) or parse_datetime_from_text(bot_reply)
 
-    parsed_time = parse_datetime_from_text(user_input) or parse_datetime_from_text(bot_reply)
-    if parsed_time and parsed_time > datetime.now(IST):
-        formatted_time = parsed_time.strftime("%d %B, %Y at %I:%M %p")
-        if st.checkbox(f"✅ Confirm scheduling on {formatted_time}?"):
-            meeting_title = st.text_input("📝 Meeting Title", "Smart Scheduler Meeting")
-            duration = st.slider("⏱ Duration (minutes)", 15, 120, 60)
-            if st.button("📅 Schedule Meeting"):
-                try:
-                    link = create_meeting(calendar_service, parsed_time.isoformat(), duration, summary=meeting_title)
-                    st.success("✅ Meeting scheduled successfully!")
-                    st.write(f"🔗 [Open in Google Calendar]({link})")
-                except Exception as e:
-                    st.error(f"Failed to schedule: {e}")
-    else:
-        st.info("❗ Couldn't parse a valid future date/time. Try: '17th June 2025 at 4:00 PM'.")
+        if scheduled_time:
+            formatted = scheduled_time.strftime("%d %B, %Y at %I:%M %p")
+            speak(f"Should I schedule the meeting on {formatted}?")
+            st.markdown(f"**Assistant:** Should I schedule the meeting on {formatted}?")
+
+            if input_method == "🎙️ Voice":
+                with st.spinner("🎙 Listening for confirmation..."):
+                    confirm = listen().lower()
+            else:
+                confirm = st.text_input("Confirm (yes / no):", key="confirm_input").lower()
+                if confirm == "":
+                    st.stop()
+
+            if any(word in confirm for word in ["yes", "sure", "okay", "go ahead"]):
+                if input_method == "⌨️ Text":
+                    with st.form("schedule_form"):
+                        meeting_title = st.text_input("Enter meeting title:", key="title_input")
+                        duration_input = st.text_input("Enter meeting duration:", key="duration_input").lower()
+                        submitted = st.form_submit_button("📅 Schedule Meeting")
+                    if not submitted:
+                        st.stop()
+                else:
+                    speak("What should be the meeting title?")
+                    with st.spinner("🎙 Listening for title..."):
+                        meeting_title = listen()
+
+                    speak("How long should the meeting be? You can say things like '1 hour', or '30 minutes'.")
+                    with st.spinner("🎙 Listening for duration..."):
+                        duration_input = listen().lower()
+
+                hours = re.search(r"(\d+)\s*hour", duration_input)
+                minutes = re.search(r"(\d+)\s*minute", duration_input)
+
+                if hours and minutes:
+                    duration = int(hours.group(1)) * 60 + int(minutes.group(1))
+                elif hours:
+                    duration = int(hours.group(1)) * 60
+                elif minutes:
+                    duration = int(minutes.group(1))
+                else:
+                    match = re.search(r"\d+", duration_input)
+                    duration = int(match.group()) if match else 60
+
+                link = create_meeting(
+                    st.session_state.calendar_service,
+                    scheduled_time.isoformat(),
+                    duration,
+                    summary=meeting_title
+                )
+                speak("Your meeting has been scheduled. Here is the link.")
+                st.markdown(f"[📅 Meeting Link]({link})")
+
+                if input_method == "⌨️ Text":
+                    st.session_state.title_input = ""
+                    st.session_state.duration_input = ""
+                    st.session_state.confirm_input = ""
+                break
+            else:
+                speak("Okay, I won’t schedule it yet.")
+                continue
+        else:
+            speak("I didn't catch the meeting time. Could you please say it again?")
 
 # Display chat history
 st.markdown("---")
