@@ -1,4 +1,4 @@
-# 🧠 Smart Voice Scheduler with Streamlit + OpenRouter + Google Calendar
+# 🧠 Voice Controlled Smart Scheduler with Streamlit + OpenRouter + Google Calendar
 
 A smart assistant to schedule your meetings using natural voice/text input. Powered by OpenRouter (LLM), Streamlit for UI, and Google Calendar for scheduling.
 
