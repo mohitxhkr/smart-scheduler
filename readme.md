@@ -2,6 +2,11 @@
 
 A smart assistant to schedule your meetings using natural voice/text input. Powered by OpenRouter (LLM), Streamlit for UI, and Google Calendar for scheduling.
 
+📷UI - ![Screenshot 2025-06-19 225509](https://github.com/user-attachments/assets/cf9944d8-1c36-47a6-bcbb-93a1f6fc090a)
+
+📹Demo Video - https://github.com/user-attachments/assets/2716b1b5-eaac-4e74-8cda-107902f0a44a
+
+
 ---
 
 ## 🚀 Features
@@ -67,4 +72,3 @@ streamlit run app.py
 ## 🙋 FAQ
 - **Can I change the time format?** – Supports both 12h and vague formats
 - **Does it speak back?** – Works on desktop, replaced with text in web UI
-- **How do I invite others?** – Coming soon! (email invitee feature)
