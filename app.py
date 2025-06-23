@@ -1,19 +1,23 @@
 import streamlit as st
-from voice_input import listen
-from voice_output import speak
-from llm_engine import generate_response
+from datetime import datetime
 from calendar_api import authenticate_google_calendar, list_events, create_meeting
 from main import parse_datetime_from_text
+from llm_engine import generate_response
+from voice_agent import (
+    record_until_silence,
+    transcribe_audio,
+    synthesize_and_speak,
+    synthesize_speech,
+    play_audio
+)
 import re
 import pytz
-from datetime import datetime
 
 IST = pytz.timezone("Asia/Kolkata")
 
 st.set_page_config(page_title="🧠 Smart Scheduler", layout="centered")
 st.title("🧠 Voice-Controlled Smart Scheduler")
 
-# Initialize session state variables
 if "calendar_service" not in st.session_state:
     st.session_state.calendar_service = authenticate_google_calendar()
 
@@ -23,19 +27,21 @@ if "conversation_context" not in st.session_state:
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# Input method toggle
 input_method = st.radio("Choose Input Method:", ["🎙️ Voice", "⌨️ Text"])
-
 start_triggered = st.button("🚀 Start Assistant")
 
+def listen_and_transcribe():
+    audio_path = record_until_silence()
+    return transcribe_audio(audio_path)
+
 if start_triggered:
-    speak("Hi! I’m your Smart Scheduler assistant. How can I help you today?")
+    synthesize_and_speak("Hi! I’m your Smart Scheduler assistant. How can I help you today?")
     st.markdown("**Assistant:** Hi! I’m your Smart Scheduler assistant. How can I help you today?")
 
     while True:
         if input_method == "🎙️ Voice":
             with st.spinner("🎙 Listening..."):
-                user_input = listen()
+                user_input = listen_and_transcribe()
         else:
             user_input = st.text_input("Type your command:", key="text_input")
             if user_input == "":
@@ -45,17 +51,17 @@ if start_triggered:
         st.session_state.chat_history.append(("User", user_input))
 
         if any(word in user_input.lower() for word in ["stop", "exit"]):
-            speak("Okay, ending the session. Goodbye!")
+            synthesize_and_speak("Okay, ending the session. Goodbye!")
             st.markdown("**Assistant:** Okay, ending the session. Goodbye!")
             break
 
         if "show" in user_input.lower() and "schedule" in user_input.lower():
-            speak("Here are your upcoming meetings.")
+            synthesize_and_speak("Here are your upcoming meetings.")
             events = list_events(st.session_state.calendar_service)
 
             if not events:
                 st.markdown("No upcoming events found.")
-                speak("You have no upcoming meetings.")
+                synthesize_and_speak("You have no upcoming meetings.")
                 continue
 
             for event in events:
@@ -64,12 +70,12 @@ if start_triggered:
                 time_obj = datetime.fromisoformat(start).astimezone(IST)
                 formatted_time = time_obj.strftime("%d %B, %Y at %I:%M %p")
                 st.markdown(f"**{summary}** on {formatted_time}")
-                speak(f"{summary} on {formatted_time}")
+                synthesize_and_speak(f"{summary} on {formatted_time}")
             continue
 
         st.session_state.conversation_context += f"\nUser: {user_input}"
         bot_reply = generate_response(user_input)
-        speak(bot_reply)
+        synthesize_and_speak(bot_reply)
         st.markdown(f"**Assistant:** {bot_reply}")
         st.session_state.chat_history.append(("Assistant", bot_reply))
         st.session_state.conversation_context += f"\nAssistant: {bot_reply}"
@@ -78,12 +84,12 @@ if start_triggered:
 
         if scheduled_time:
             formatted = scheduled_time.strftime("%d %B, %Y at %I:%M %p")
-            speak(f"Should I schedule the meeting on {formatted}?")
+            synthesize_and_speak(f"Should I schedule the meeting on {formatted}?")
             st.markdown(f"**Assistant:** Should I schedule the meeting on {formatted}?")
 
             if input_method == "🎙️ Voice":
                 with st.spinner("🎙 Listening for confirmation..."):
-                    confirm = listen().lower()
+                    confirm = listen_and_transcribe().lower()
             else:
                 confirm = st.text_input("Confirm (yes / no):", key="confirm_input").lower()
                 if confirm == "":
@@ -98,13 +104,13 @@ if start_triggered:
                     if not submitted:
                         st.stop()
                 else:
-                    speak("What should be the meeting title?")
+                    synthesize_and_speak("What should be the meeting title?")
                     with st.spinner("🎙 Listening for title..."):
-                        meeting_title = listen()
+                        meeting_title = listen_and_transcribe()
 
-                    speak("How long should the meeting be? You can say things like '1 hour', or '30 minutes'.")
+                    synthesize_and_speak("How long should the meeting be? For example, say '1 hour' or '30 minutes'.")
                     with st.spinner("🎙 Listening for duration..."):
-                        duration_input = listen().lower()
+                        duration_input = listen_and_transcribe().lower()
 
                 hours = re.search(r"(\d+)\s*hour", duration_input)
                 minutes = re.search(r"(\d+)\s*minute", duration_input)
@@ -125,7 +131,7 @@ if start_triggered:
                     duration,
                     summary=meeting_title
                 )
-                speak("Your meeting has been scheduled. Here is the link.")
+                synthesize_and_speak("Your meeting has been scheduled. Here is the link.")
                 st.markdown(f"[📅 Meeting Link]({link})")
 
                 if input_method == "⌨️ Text":
@@ -134,12 +140,11 @@ if start_triggered:
                     st.session_state.confirm_input = ""
                 break
             else:
-                speak("Okay, I won’t schedule it yet.")
+                synthesize_and_speak("Okay, I won’t schedule it yet.")
                 continue
         else:
-            speak("I didn't catch the meeting time. Could you please say it again?")
+            synthesize_and_speak("I didn't catch the meeting time. Could you please say it again?")
 
-# Display chat history
 st.markdown("---")
 st.subheader("🗨️ Conversation History")
 for sender, message in st.session_state.chat_history:
