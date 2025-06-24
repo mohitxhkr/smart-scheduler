@@ -22,3 +22,5 @@ credentials.json
 # OS-specific
 .DS_Store
 Thumbs.db
+temp_input.wav
+tempCodeRunnerFile.py
