@@ -1,5 +1,3 @@
-# voice_agent.py
-
 import os
 import wave
 import time
