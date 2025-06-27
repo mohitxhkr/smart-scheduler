@@ -2,17 +2,13 @@ import os
 import requests
 
 def generate_response(prompt):
-    # api_key = os.getenv("OPENROUTER_API_KEY")
-    # if not api_key:
-    #     return "OpenRouter API key is missing. Please set OPENROUTER_API_KEY environment variable."
-
     headers = {
         "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
         "Content-Type": "application/json"
     }
 
     payload = {
-        "model": "openai/gpt-3.5-turbo",
+        "model": "google/gemini-2.5-flash-lite-preview-06-17",
         "messages": [
             {
                 "role": "system",
@@ -45,7 +41,7 @@ def generate_response(prompt):
             return "Sorry, I received an empty response from the language model."
 
     except requests.exceptions.HTTPError as http_err:
-        return f"HTTP error occurred: {http_err}"
+        return f"HTTP error occurred: {http_err}\nDetails: {response.text}"
     except requests.exceptions.ConnectionError:
         return "Connection error: Please check your internet connection."
     except requests.exceptions.Timeout:

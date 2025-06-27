@@ -13,12 +13,12 @@ from llm_engine import generate_response
 # Load environment
 load_dotenv()
 api_key = os.getenv("ELEVENLABS_API_KEY")
-voice_id = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM")  # Rachel
+voice_id = os.getenv("ELEVENLABS_VOICE_ID")  # Rachel
 
 client = ElevenLabs(api_key=api_key)
 model = whisper.load_model("base")
 
-def record_until_silence(threshold=300, silence_limit=1, max_duration=10, filename="temp_input.wav"):
+def record_until_silence(threshold=300, silence_limit=0.5, max_duration=3.5, filename="temp_input.wav"):
     print("🎙 Listening (volume threshold-based)...")
 
     CHUNK = 1024
@@ -70,8 +70,9 @@ def record_until_silence(threshold=300, silence_limit=1, max_duration=10, filena
 
 def transcribe_audio(audio_path):
     print("📝 Transcribing...")
-    result = model.transcribe(audio_path)
+    result = model.transcribe(audio_path, fp16=False)
     return result["text"]
+
 
 def synthesize_speech(text, voice_id=voice_id):
     print("🗣️ Synthesizing speech...")
