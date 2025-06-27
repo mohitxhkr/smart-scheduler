@@ -37,7 +37,10 @@ A voice/text-powered assistant that schedules meetings using Google Calendar. Bu
 | Audio I/O            | sounddevice, scipy, pygame |
 | Date Parsing / TZ    | dateparser, pytz           |
 
+
 ---
+
+## 🔧Technical Architecture - ![diagram](https://github.com/user-attachments/assets/a457ace4-a181-4531-8b45-3e4048e7e4cd)
 
 ## 💾 Installation
 
