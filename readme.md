@@ -108,17 +108,14 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key
 ## 📂 Folder Structure
 
 ```
-smart-scheduler/
-├── .env
-├── app.py
-├── main.py
-├── voice_agent.py
-├── calendar_api.py
-├── llm_engine.py
-├── parse.py
-├── credentials.json
-└── requirements.txt
-```
+.gitignore
+app.py
+calendar_api.py
+llm_engine.py
+main.py
+readme.md
+requirements.txt
+voice_agent.py
 
 ---
 
