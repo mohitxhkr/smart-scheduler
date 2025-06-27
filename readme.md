@@ -1,4 +1,4 @@
-# 🤖 Smart Voice Scheduler
+# 🤖 Smart Scheduler AI
 
 A voice/text-powered assistant that schedules meetings using Google Calendar. Built with **Streamlit**, **Whisper**, **ElevenLabs**, **OpenRouter**, and **Google Calendar API** for a seamless hands‑free experience.
 
