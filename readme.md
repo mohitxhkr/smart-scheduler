@@ -2,7 +2,7 @@
 
 A voice/text-powered assistant that schedules meetings using Google Calendar. Built with **Streamlit**, **Whisper**, **ElevenLabs**, **OpenRouter**, and **Google Calendar API** for a seamless hands‑free experience.
 
-## 💻UI - ![Screenshot 2025-06-24 152555](https://github.com/user-attachments/assets/f5d77b5c-e82d-4bb1-a2fc-d532b6d4a043)
+## 💻UI- ![Screenshot 2025-06-24 152555](https://github.com/user-attachments/assets/f5d77b5c-e82d-4bb1-a2fc-d532b6d4a043)
 
 #### 📸DEMO (Desktop interface) -  https://github.com/user-attachments/assets/29bf94f4-6aa8-48c5-b141-1910b4ed8426
 
@@ -40,7 +40,7 @@ A voice/text-powered assistant that schedules meetings using Google Calendar. Bu
 
 ---
 
-## 🔧Technical Architecture Diagram -
+## 🔧Technical Architecture Diagram-
 ![diagram](https://github.com/user-attachments/assets/a457ace4-a181-4531-8b45-3e4048e7e4cd)
 
 ## 💾 Installation
@@ -120,14 +120,14 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key
 ## 📂 Folder Structure
 
 ```
-├── .gitignore # Git ignore rules
-├── app.py # Application entry point
-├── calendar_api.py # Google Calendar integration
-├── llm_engine.py # LLM response generation
-├── main.py # Main scheduling workflow
-├── voice_agent.py # Voice input/output handling
-├── requirements.txt # Python dependencies
-└── readme.md # Project documentation
+├── .gitignore #Git ignore rules
+├── app.py #Application entry point
+├── calendar_api.py #Google Calendar integration
+├── llm_engine.py #LLM response generation
+├── main.py #Main scheduling workflow
+├── voice_agent.py #Voice input/output handling
+├── requirements.txt #Python dependencies
+└── readme.md #Project documentation
 ```
 
 ---
