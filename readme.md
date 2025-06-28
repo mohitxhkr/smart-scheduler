@@ -120,14 +120,14 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key
 ## 📂 Folder Structure
 
 ```
-├── .gitignore            (Git ignore rules)
-├── app.py                (Application entry point)
-├── calendar_api.py       (Google Calendar integration)
-├── llm_engine.py         (LLM response generation)
-├── main.py               (Main scheduling workflow)
-├── voice_agent.py        (Voice input/output handling)
-├── requirements.txt      (Python dependencies)
-└── readme.md             (Project documentation)
+├── .gitignore ➡️           (Git ignore rules)
+├── app.py  ➡️              (Application entry point)
+├── calendar_api.py ➡️      (Google Calendar integration)
+├── llm_engine.py   ➡️      (LLM response generation)
+├── main.py    ➡️           (Main scheduling workflow)
+├── voice_agent.py ➡️       (Voice input/output handling)
+├── requirements.txt ➡️     (Python dependencies)
+└── readme.md   ➡️          (Project documentation)
 ```
 
 ---
