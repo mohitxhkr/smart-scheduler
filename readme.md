@@ -127,7 +127,7 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key
 ├── main.py               (Main scheduling workflow)
 ├── voice_agent.py        (Voice input/output handling)
 ├── requirements.txt      (Python dependencies)
-└── readme.md              (Project documentation)
+└── readme.md             (Project documentation)
 ```
 
 ---
