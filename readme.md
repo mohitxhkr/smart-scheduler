@@ -160,7 +160,7 @@ google-auth-oauthlib
 
 * **No audio?** Ensure `ffmpeg` + `mpv` are installed and in `PATH`, and your speaker/mic are working.
 * **Calendar not accessible?** Verify permissions in `credentials.json`, and check your Google Cloud Console settings.
-* **Misunderstanding time?** The LLM handles parsing but date/string detection may fall back to manual parsing `parse.py`. Improve it for better edge-case handling.
+* **Misunderstanding time?** The LLM handles parsing but date/string detection may fall back to manual parsing . Improve it for better edge-case handling.
 
 ---
 
