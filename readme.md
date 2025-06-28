@@ -4,9 +4,9 @@ A voice/text-powered assistant that schedules meetings using Google Calendar. Bu
 
 ## 💻UI - ![Screenshot 2025-06-24 152555](https://github.com/user-attachments/assets/f5d77b5c-e82d-4bb1-a2fc-d532b6d4a043)
 
-## 📸DEMO (Desktop interface) -  https://github.com/user-attachments/assets/29bf94f4-6aa8-48c5-b141-1910b4ed8426
+### 📸DEMO (Desktop interface) -  https://github.com/user-attachments/assets/29bf94f4-6aa8-48c5-b141-1910b4ed8426
 
-## 📸DEMO (Web interface) - https://github.com/user-attachments/assets/c2794116-a95d-4349-9486-2625de19afa6
+### 📸DEMO (Web interface) - https://github.com/user-attachments/assets/c2794116-a95d-4349-9486-2625de19afa6
 
 ---
 
