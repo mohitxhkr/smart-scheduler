@@ -40,8 +40,8 @@ A voice/text-powered assistant that schedules meetings using Google Calendar. Bu
 
 ---
 
-## 🔧Technical Architecture Diagram
-- ![diagram](https://github.com/user-attachments/assets/a457ace4-a181-4531-8b45-3e4048e7e4cd)
+## 🔧Technical Architecture Diagram -
+![diagram](https://github.com/user-attachments/assets/a457ace4-a181-4531-8b45-3e4048e7e4cd)
 
 ## 💾 Installation
 
